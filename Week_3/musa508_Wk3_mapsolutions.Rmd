@@ -52,12 +52,12 @@ source("https://raw.githubusercontent.com/urbanSpatial/Public-Policy-Analytics-L
 ## Load Census API Key
 
 ```{r load_api_key, message=FALSE, warning=FALSE}
-census_api_key("YOUR API KEY", overwrite = TRUE)
+census_api_key("e79f3706b6d61249968c6ce88794f6f556e5bf3d", overwrite = TRUE)
 ```
 
 # Load the data
 
-You can clone the Github repo for the book (not the lab repo) lab 3 data (using github desktop) to get the data. You can also load from a URL, as we do below.
+First step is to clone the repo for the lab 3 data (using github desktop) so we have the data.
 
 You can clone the repo using the "file" tab in Github Desktop and using [this URL:](https://github.com/urbanSpatial/Public-Policy-Analytics-Landing)
 
@@ -170,3 +170,49 @@ Consider how you might label objects in your map using
 Think about ways to manipulate the `studyAreaTowns` data inside that text geom to make it more legible.
 
 Put all this code into a markdown chunk that runs correctly and allows this markdown to `knit`. Then see if you can manipulate the chunk options so that there aren't annoying warnings and other messages you don't want showing up in an assignment.
+
+# Possible Map Solutions 
+
+## Solution 1
+
+Solution 1 depicts a map with labels and a distinct color per 'MUNI.'
+
+```{r}
+ggplot() +
+  geom_sf(data = studyAreaTowns, fill = "black", color = "grey") +
+  geom_sf(data = filter(buffersAndTowns, Legend == "Inside"), aes(fill = MUNI), 
+          alpha = 0.3, color = "transparent") +
+  geom_sf(data = filter(buffersAndTowns, Legend == "Outside"), aes(fill = MUNI),
+          color = "transparent") +
+  scale_fill_viridis_d() +
+  geom_sf_label(data = studyAreaTowns %>% 
+                  group_by(MUNI) %>% 
+                  summarise(), 
+                aes(label = str_remove(MUNI," TOWNSHIP")), 
+                size = 2) +
+  mapTheme() +
+  theme(
+    legend.position = "none"
+  )
+```
+
+## Solution 2
+
+Solution 2 displays a map with labels, but with coloring to indicate the UGB.
+
+```{r}
+ggplot() +
+  geom_sf(data = studyAreaTowns, fill = "grey90", color = "grey") +
+  geom_sf(data = filter(buffersAndTowns, Legend == "Inside"), aes(fill = "Inside"), color = "transparent", alpha = 0.6) +
+  geom_sf(data = filter(buffersAndTowns, Legend == "Outside"), aes(fill = "Outside"), color = "transparent", alpha = 0.6) +
+  geom_sf_label(data = studyAreaTowns %>% 
+                  group_by(MUNI) %>% 
+                  summarise(), 
+                aes(label = str_remove(MUNI," TOWNSHIP")), 
+                size = 2) +
+  mapTheme() +
+  theme(
+    legend.position = "right")
+```
+
+Continue to try and make your own with other layers!
